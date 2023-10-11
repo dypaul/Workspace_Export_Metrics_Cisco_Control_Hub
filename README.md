@@ -1,6 +1,6 @@
 # Workspace_Export_Metrics_Cisco_Control_Hub
 
-Python script project to iBulk import of data to Control Hub in order to create Workspaces from a source of trust XLSX file.
+Python script project to export metrics data from Control Hub to XLSX / CSV /JSON.
 
 ## Table of Contents
 
