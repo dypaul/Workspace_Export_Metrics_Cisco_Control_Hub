@@ -1,4 +1,4 @@
-# Bulk_import_workspaces_Cisco_Control_Hub
+# Workspace_Export_Metrics_Cisco_Control_Hub
 
 Python script project to iBulk import of data to Control Hub in order to create Workspaces from a source of trust XLSX file.
 
@@ -18,21 +18,21 @@ Follow these steps to set up your development environment and install the projec
    Clone this GitHub repository to your local machine using the following command:
 
    ```bash
-   git clone https://github.com/dypaul/Bulk_import_workspaces_Cisco_Control_Hub.git
+   git clone https://github.com/dypaul/Workspace_Export_Metrics_Cisco_Control_Hub.git
 
 2. **Navigate to the Project Directory:**
    
    Change your current directory to the project's directory:
    
    ```bash
-   cd Bulk_import_workspaces_Cisco_Control_Hub
+   cd Workspace_Export_Metrics_Cisco_Control_Hub
 
 3. **Create a Virtual Environment (Optional but Recommended):**
 
    It's a good practice to create a virtual environment to isolate your project's dependencies. You can create one using Python's built-in venv module:
    
    ```bash
-   python -m venv Bulk_import_workspaces_Cisco_Control_Hub
+   python -m venv Workspace_Export_Metrics_Cisco_Control_Hub
     ```
    Activate the virtual environment:
 
@@ -58,30 +58,27 @@ Follow these steps to set up your development environment and install the projec
 ## Usage
 Our project requires you to configure it with your own API token for authentication. Follow these steps to configure the project:
 
-1. **Fill out the spreedsheet**
 
-   Fill out the spreedsheet nammed Bulk_import_workspaces.xlsx for Bulk import of data to Control Hub in order to create Workspaces.
-
-2. **Obtain an API Token:**
+1. **Obtain an API Token:**
 
    To use our project, you'll need to obtain an API token from [Webex Developper - Control Hub](https://developer.webex.com/docs/getting-started). This token is required for authentication and authorization.
 
-3. **Replace the Token in the Code:**
+2. **Replace the Token in the Code:**
 
    Open the project's source code (Bulk_import_workspaces.py) and locate the section where the API token needs to be provided. The variable named `access_token`.
 
-4. **Insert Your API Token:**
+3. **Insert Your API Token:**
 
    Replace the placeholder `YOUR_API_TOKEN_HERE` with your actual API token obtained from [Webex Developper - Control Hub](https://developer.webex.com/docs/getting-started).
 
-5. **Save the Changes:**
+4. **Save the Changes:**
 
    Save the file with the updated token.
 
-6. **Execute the script:**
+5. **Execute the script:**
    Now that you've configured the project with your API token, you can execute it as follows:
    ```bash
-   python Bulk_import_workspaces.py
+   python workspace_export_metrics.py
    ```
 
 **Note:** We recommend testing the script first on a Webex sandbox environment before using it in a production environment. You can create a sandbox account by following the instructions in the [Webex Developer Sandbox Guide](https://developer.webex.com/docs/developer-sandbox-guide).
