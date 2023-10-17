@@ -6,29 +6,28 @@ import json
 from datetime import datetime, timedelta
 
 # Replace 'YOUR_ACCESS_TOKEN' with your authentication token
-access_token = 'YOUR_ACCESS_TOKEN'
+ACCESS_TOKEN = 'YOUR_ACCESS_TOKEN'
 
 # API URL
-api_base_url = 'https://webexapis.com/v1'
-
+API_BASE_URL = 'https://webexapis.com/v1'
 
 # Common headers for API requests
-headers = {
-    'Authorization': f'Bearer {access_token}',
+HEADERS = {
+    'Authorization': f'Bearer {ACCESS_TOKEN}',
     'Content-Type': 'application/json',
 }
 
 # Default aggregation and maximum time spans
-default_aggregation = 'hourly'
-hourly_max_time_span = 47
-daily_max_time_span = 29
+DEFAULT_AGGREGATION = 'hourly'
+HOURLY_MAX_TIME_SPAN = 47
+DAILY_MAX_TIME_SPAN = 29
 
 # List of possible metric names
-metric_names = ['duration', 'soundLevel', 'ambientNoise', 'temperature', 'humidity', 'tvoc', 'peopleCount']
+METRIC_NAMES = ['duration', 'soundLevel', 'ambientNoise', 'temperature', 'humidity', 'tvoc', 'peopleCount']
 
 # Function to make a GET request to the Webex API
 def api_get_request(endpoint, params=None):
-    response = requests.get(endpoint, headers=headers, params=params)
+    response = requests.get(endpoint, headers=HEADERS, params=params)
     return response
 
 # Function to check the access token
@@ -37,7 +36,7 @@ def check_access_token(access_token, headers):
         access_token = input("\n\033[0;38mEnter your Webex API access token: ")
 
     headers['Authorization'] = f'Bearer {access_token}'  # Update headers
-    api_check_url = f'{api_base_url}/people/me'
+    api_check_url = f'{API_BASE_URL}/people/me'
     response = api_get_request(api_check_url, headers)
 
     if response.status_code == 200:
@@ -46,13 +45,13 @@ def check_access_token(access_token, headers):
         print("\n\033[0;31mToken access failed. Please check your access token.")
         access_token = input("\n\033[0;38mEnter your Webex API access token: ")  # Ask the user to enter the correct access token
         return check_access_token(access_token, headers)
-    
+
 # Function to get locationId using the location name
 def get_location_id(location_name):
     encoded_location_name = urllib.parse.quote(location_name)
-    request_url = f'{api_base_url}/workspaceLocations?displayName={encoded_location_name}'
+    request_url = f'{API_BASE_URL}/workspaceLocations?displayName={encoded_location_name}'
     response = api_get_request(request_url)
-    
+
     if response.status_code == 200:
         data = response.json()
         if data.get('items'):
@@ -61,7 +60,7 @@ def get_location_id(location_name):
 
 # Function to get floorId using locationId
 def get_floor_id(location_id):
-    request_url = f'{api_base_url}/workspaceLocations/{location_id}/floors'
+    request_url = f'{API_BASE_URL}/workspaceLocations/{location_id}/floors'
     response = api_get_request(request_url)
 
     if response.status_code == 200:
@@ -72,7 +71,7 @@ def get_floor_id(location_id):
 
 # Function to get workspaceId using locationId and floorId
 def get_workspace_id(location_id, floor_id):
-    request_url = f'{api_base_url}/workspaces'
+    request_url = f'{API_BASE_URL}/workspaces'
     params = {
         'locationId': location_id,
         'floorId': floor_id
@@ -87,7 +86,7 @@ def get_workspace_id(location_id, floor_id):
 
 # Function to get workspace name using workspaceId
 def get_workspace_name(workspace_id):
-    request_url = f'{api_base_url}/workspaces/{workspace_id}'
+    request_url = f'{API_BASE_URL}/workspaces/{workspace_id}'
     response = api_get_request(request_url)
 
     if response.status_code == 200:
@@ -103,7 +102,7 @@ def get_workspace_metrics(workspace_id, metric_name, aggregation, from_date_time
     encoded_from_date_time_iso = urllib.parse.quote(from_date_time_iso)
     encoded_to_date_time_iso = urllib.parse.quote(to_date_time_iso)
 
-    request_url = f'{api_base_url}/workspaceMetrics?workspaceId={encoded_workspace_id}&metricName={encoded_metric_name}&aggregation={encoded_aggregation}&from={encoded_from_date_time_iso}Z&to={encoded_to_date_time_iso}Z'
+    request_url = f'{API_BASE_URL}/workspaceMetrics?workspaceId={encoded_workspace_id}&metricName={encoded_metric_name}&aggregation={encoded_aggregation}&from={encoded_from_date_time_iso}Z&to={encoded_to_date_time_iso}Z'
     response = api_get_request(request_url)
 
     if response.status_code == 200:
@@ -118,13 +117,23 @@ def get_workspace_duration_metrics(workspace_id, aggregation, from_date_time_iso
     encoded_from_date_time_iso = urllib.parse.quote(from_date_time_iso)
     encoded_to_date_time_iso = urllib.parse.quote(to_date_time_iso)
 
-    request_url = f'{api_base_url}/workspaceDurationMetrics?workspaceId={encoded_workspace_id}&aggregation={encoded_aggregation}&from={encoded_from_date_time_iso}Z&to={encoded_to_date_time_iso}Z'
+    request_url = f'{API_BASE_URL}/workspaceDurationMetrics?workspaceId={encoded_workspace_id}&aggregation={encoded_aggregation}&from={encoded_from_date_time_iso}Z&to={encoded_to_date_time_iso}Z'
     response = api_get_request(request_url)
 
     if response.status_code == 200:
         data = response.json()
         return data
     return None
+
+# Function to get workspace capacity using workspaceId
+def get_workspace_capacity(workspace_id):
+    request_url = f'{API_BASE_URL}/workspaces/{workspace_id}'
+    response = api_get_request(request_url)
+
+    if response.status_code == 200:
+        data = response.json()
+        return data.get('capacity', 'N/A')
+    return 'N/A'
 
 # Function to export data in various formats
 def export_data(data, headers, filename, export_format):
@@ -133,7 +142,7 @@ def export_data(data, headers, filename, export_format):
         workbook = openpyxl.Workbook()
         worksheet = workbook.active
         worksheet.title = 'Workspace Metrics'
-        
+
         # Add headers
         worksheet.append(headers)
 
@@ -186,13 +195,16 @@ def workspace_metrics(location_name, aggregation, export_format):
                 workspace_name = get_workspace_name(workspace_id)  # Get the workspace name
                 print(f"\033[0;38m{workspace_name} in progress...")
 
-                for metric_name in metric_names:
+                for metric_name in METRIC_NAMES:
                     if metric_name == 'duration':
                         metrics_data = get_workspace_duration_metrics(workspace_id, aggregation, from_date_time_iso, to_date_time_iso)
                     else:
                         metrics_data = get_workspace_metrics(workspace_id, metric_name, aggregation, from_date_time_iso, to_date_time_iso)
 
                     if metrics_data:
+                        # Define the capacity variable here
+                        capacity = get_workspace_capacity(workspace_id)
+                        
                         for metric in metrics_data.get('items', []):
                             start_time = metric.get('start', 'N/A')
                             end_time = metric.get('end', 'N/A')
@@ -202,13 +214,14 @@ def workspace_metrics(location_name, aggregation, export_format):
                                 workspace_metrics_data.append({
                                     'Workspace Name': workspace_name,
                                     'Floor Number': floor_number,
+                                    'Capacity': capacity,
                                     'Metric Name': metric_name,
                                     'Start Date/Time': start_time,
                                     'End Date/Time': end_time,
                                     'Duration': duration,
                                     'Mean value': 'N/A',
                                     'Min value': 'N/A',
-                                    'Max value': 'N/A',
+                                    'Max value': 'N/A'
                                 })
                             else:
                                 mean_value = metric.get('mean', 'N/A')
@@ -217,53 +230,55 @@ def workspace_metrics(location_name, aggregation, export_format):
                                 workspace_metrics_data.append({
                                     'Workspace Name': workspace_name,
                                     'Floor Number': floor_number,
+                                    'Capacity': capacity,
                                     'Metric Name': metric_name,
                                     'Start Date/Time': start_time,
                                     'End Date/Time': end_time,
                                     'Duration': 'N/A',
                                     'Mean value': mean_value,
                                     'Min value': min_value,
-                                    'Max value': max_value,
+                                    'Max value': max_value
                                 })
                         print(f"\033[0;32m{metric_name} for {workspace_name} workspace done")
                 print(f"\033[0;36m{workspace_name} workspace done \n")
 
-        headers_XLSX = ['Workspace Name', 'Floor Number', 'Metric Name', 'Start Date/Time', 'End Date/Time', 'Duration', 'Mean value', 'Min value', 'Max value']
+        HEADERS_XLSX = ['Workspace Name', 'Floor Number', 'Capacity', 'Metric Name', 'Start Date/Time', 'End Date/Time', 'Duration', 'Mean value', 'Min value', 'Max value']
 
         # Define the filename for the export
-        filename = f'workspaces_metrics_{aggregation}.{export_format}'
+        current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")  # Get the current date and time in the format 'YYYY-MM-DD_HH-MM-SS'
+        filename = f'{current_datetime}_{location_name}_workspace_metrics_{aggregation}.{export_format}'
 
         # Export data based on the chosen format
-        export_data(workspace_metrics_data, headers_XLSX, filename, export_format)
+        export_data(workspace_metrics_data, HEADERS_XLSX, filename, export_format)
 
     else:
         print(f"\033[0;31mUnable to get locationId.")
 
 # Call the function to check the token
-token = check_access_token(access_token, headers)
-print(token)
+TOKEN = check_access_token(ACCESS_TOKEN, HEADERS)
+print(TOKEN)
 
 # Ask the user for the location name
-location_name = input(f"\033[0;38mEnter the location name: ")
+LOCATION_NAME = input(f"\033[0;38mEnter the location name: ")
 print('\n')
 
 # Ask the user for aggregation choice
-aggregation_choice = input("""Choose aggregation:
+AGGREGATION_CHOICE = input("""Choose aggregation:
  1. hourly (the maximum time span is 48 hours)
  2. daily (the maximum time span is 30 days)
 Enter your choice: """)
 print('\n')
 
-if aggregation_choice == '1':
+if AGGREGATION_CHOICE == '1':
     aggregation = 'hourly'
-    max_time_span = hourly_max_time_span
+    max_time_span = HOURLY_MAX_TIME_SPAN
     to_date_time = datetime.now()
     to_date_time_iso = to_date_time.isoformat()
     from_date_time = to_date_time - timedelta(hours=max_time_span)
     from_date_time_iso = from_date_time.isoformat()
-elif aggregation_choice == '2':
+elif AGGREGATION_CHOICE == '2':
     aggregation = 'daily'
-    max_time_span = daily_max_time_span
+    max_time_span = DAILY_MAX_TIME_SPAN
     to_date_time = datetime.now()
     to_date_time_iso = to_date_time.isoformat()
     from_date_time = to_date_time - timedelta(days=max_time_span)
@@ -273,22 +288,22 @@ else:
     exit(1)
 
 # Ask the user for the export format choice
-export_format_choice = input("""Choose export format:
+EXPORT_FORMAT_CHOICE = input("""Choose export format:
  1. XLSX
  2. CSV
  3. JSON
 Enter your choice: """).strip().lower()
 print('\n')
 
-if export_format_choice == '1':
+if EXPORT_FORMAT_CHOICE == '1':
     export_format = 'xlsx'
-elif export_format_choice == '2':
+elif EXPORT_FORMAT_CHOICE == '2':
     export_format = 'csv'
-elif export_format_choice == '3':
+elif EXPORT_FORMAT_CHOICE == '3':
     export_format = 'json'
 else:
     print(f"\033[0;31mInvalid export format choice. Please choose 1 for XLSX, 2 for CSV, or 3 for JSON.")
     exit(1)
 
 # Retrieve workspace metrics
-workspace_metrics(location_name, aggregation, export_format)
+workspace_metrics(LOCATION_NAME, aggregation, export_format)
