@@ -18,7 +18,6 @@ HEADERS = {
 }
 
 # Default aggregation and maximum time spans
-DEFAULT_AGGREGATION = 'hourly'
 HOURLY_MAX_TIME_SPAN = 47
 DAILY_MAX_TIME_SPAN = 29
 
@@ -84,15 +83,18 @@ def get_workspace_id(location_id, floor_id):
             return data['items']  # Return a list of workspace objects
     return []
 
-# Function to get workspace name using workspaceId
-def get_workspace_name(workspace_id):
+# Function to get workspace name and capacity using workspaceId
+def get_workspace_info(workspace_id):
     request_url = f'{API_BASE_URL}/workspaces/{workspace_id}'
     response = api_get_request(request_url)
 
     if response.status_code == 200:
         data = response.json()
-        return data.get('displayName')  # Get the workspace name from the API response
-    return None
+        workspace_name = data.get('displayName')
+        capacity = data.get('capacity', 'N/A')
+        return workspace_name, capacity
+
+    return None, 'N/A'
 
 # Function to get workspace metrics using workspaceId
 def get_workspace_metrics(workspace_id, metric_name, aggregation, from_date_time_iso, to_date_time_iso):
@@ -124,16 +126,6 @@ def get_workspace_duration_metrics(workspace_id, aggregation, from_date_time_iso
         data = response.json()
         return data
     return None
-
-# Function to get workspace capacity using workspaceId
-def get_workspace_capacity(workspace_id):
-    request_url = f'{API_BASE_URL}/workspaces/{workspace_id}'
-    response = api_get_request(request_url)
-
-    if response.status_code == 200:
-        data = response.json()
-        return data.get('capacity', 'N/A')
-    return 'N/A'
 
 # Function to export data in various formats
 def export_data(data, headers, filename, export_format):
@@ -192,7 +184,7 @@ def workspace_metrics(location_name, aggregation, export_format):
 
             for workspace in workspace_list:
                 workspace_id = workspace['id']
-                workspace_name = get_workspace_name(workspace_id)  # Get the workspace name
+                workspace_name, capacity = get_workspace_info(workspace_id)  # Get the workspace name and capacity
                 print(f"\033[0;38m{workspace_name} in progress...")
 
                 for metric_name in METRIC_NAMES:
@@ -202,9 +194,6 @@ def workspace_metrics(location_name, aggregation, export_format):
                         metrics_data = get_workspace_metrics(workspace_id, metric_name, aggregation, from_date_time_iso, to_date_time_iso)
 
                     if metrics_data:
-                        # Define the capacity variable here
-                        capacity = get_workspace_capacity(workspace_id)
-                        
                         for metric in metrics_data.get('items', []):
                             start_time = metric.get('start', 'N/A')
                             end_time = metric.get('end', 'N/A')
