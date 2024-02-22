@@ -48,7 +48,7 @@ def check_access_token(access_token, headers):
 # Function to get locationId using the location name
 def get_location_id(location_name):
     encoded_location_name = urllib.parse.quote(location_name)
-    request_url = f'{API_BASE_URL}/workspaceLocations?displayName={encoded_location_name}'
+    request_url = f'{API_BASE_URL}/locations?name={encoded_location_name}'
     response = api_get_request(request_url)
 
     if response.status_code == 200:
@@ -59,7 +59,7 @@ def get_location_id(location_name):
 
 # Function to get floorId using locationId
 def get_floor_id(location_id):
-    request_url = f'{API_BASE_URL}/workspaceLocations/{location_id}/floors'
+    request_url = f'{API_BASE_URL}/locations/{location_id}/floors'
     response = api_get_request(request_url)
 
     if response.status_code == 200:
